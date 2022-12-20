@@ -1,0 +1,19 @@
+name: Save cache always
+
+on: [push]
+
+jobs:
+  run:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Step to fail
+        run: |
+          echo hello > ./file-to-cache
+          false
+      - uses: actions/cache/save@v3.2.0-beta.1
+        if: always()
+        with:
+          path: |
+            ./file-to-cache
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
