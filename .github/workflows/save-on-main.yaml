@@ -1,0 +1,27 @@
+name: Save cache only on main
+
+on: [push]
+
+jobs:
+  run:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache/restore@v3.2.0-beta.1
+        with:
+          path: |
+            ./large-object
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-
+      - name: Generate random file if needed
+        run: |
+          if [ ! -f ./large-object ]; then
+            base64 /dev/urandom | head -c 2048M > large-object
+          fi
+      - uses: actions/cache/save@v3.2.0-beta.1
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: |
+            ./large-object
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
